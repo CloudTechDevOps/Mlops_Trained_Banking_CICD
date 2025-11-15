@@ -194,3 +194,62 @@ Frontend receives JSON and displays the result:
 text
 
 ✅ Loan Status: APPROVED
+
+
+
+
+
+
+##### Backedn and model communication #####
+
+
+1️⃣ model.predict(input_features)
+
+model is your pre-trained Random Forest model (loaded from model_full.pkl at the start of app.py).
+
+input_features is a 2D NumPy array containing one sample from the frontend (age, income, loan_amount, loan_term, credit_score, gender_encoded, married_encoded).
+Example:
+
+input_features = np.array([[30, 50000, 20000, 24, 700, 1, 0]])
+
+
+Calling model.predict(input_features) runs the Random Forest model in memory and returns a numeric prediction.
+For your case:
+
+0 → denied
+
+1 → approved
+
+2️⃣ le_approved.inverse_transform(prediction)
+
+Your model predicts numbers (0 or 1) but the frontend expects readable labels: "approved" or "denied".
+
+le_approved.inverse_transform() converts the numeric output back into the string label.
+
+Example:
+
+prediction = np.array([1])
+result = le_approved.inverse_transform(prediction)[0]  # "approved"
+
+3️⃣ return jsonify(...)
+
+Flask converts the result into a JSON response that goes back to the frontend.
+
+Example JSON returned:
+
+{
+  "prediction": "approved",
+  "status": "success"
+}
+
+✅ Summary
+
+Frontend sends user input → JSON.
+
+Flask reads the JSON → prepares input_features.
+
+Flask passes input_features to trained Random Forest model → model.predict().
+
+Encoders convert numeric output to "approved"/"denied".
+
+Flask returns JSON → frontend displays it.
